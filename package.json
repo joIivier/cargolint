@@ -1,0 +1,26 @@
+{
+  "name": "cargolint",
+  "displayName": "Cargo Lint",
+  "version": "0.0.1",
+  "description": "VSCode extension linting with Cargo instead of rls",
+  "author": "gjolivier@gmail.com",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.25.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onLanguage:rust"],
+  "main": "./out/extension.js",
+  "contributes": {
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^11.13.4",
+    "tslint": "^5.15.0",
+    "typescript": "^3.4.3",
+    "vscode": "^1.1.33"
+  }
+}

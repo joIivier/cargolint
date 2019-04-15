@@ -4,7 +4,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpawnOptions, spawn } from 'child_process';
-import { stringify } from 'querystring';
 
 function toPromiseUntyped(f) {
   return (...args) => new Promise((resolve, reject) => {
@@ -16,7 +15,7 @@ function toPromiseUntyped(f) {
     }
     });
   });
-};
+}
 
 function toPromise1<I, O>(f: (i: I, callback: ((err: NodeJS.ErrnoException, o: O) => void)) => void): (i: I) => Promise<O> {
   return toPromiseUntyped(f) as (i: I) => Promise<O>;
@@ -31,7 +30,7 @@ const testExists = async (f: string): Promise<boolean> => {
   } catch (e) {
     return false;
   }
-}
+};
 
 const findCargoRoot = async (fileName: string): Promise<string> => {
   let folder = path.dirname(fileName);
@@ -122,7 +121,7 @@ const runCargoCheck = async function(cargoRoot: string): Promise<CheckMessage[]>
       return v;
     });
   }
-}
+};
 
 function getSeverity(message: CheckMessage, span: CheckMessageSpan) {
   if (span.is_primary) {
@@ -144,7 +143,7 @@ function getLabel(message: CheckMessage, span: CheckMessageSpan) {
   }
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(_context: vscode.ExtensionContext) {
   let dc = vscode.languages.createDiagnosticCollection("cargolint");
   const diagnosticsPerFile = new Map<string, vscode.Diagnostic[]>();
   vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {

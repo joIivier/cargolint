@@ -2,6 +2,8 @@
   "name": "cargolint",
   "displayName": "Cargo Lint",
   "version": "0.0.1",
+  "publisher": "pianoctal",
+  "repository": "https://github.com/joIivier/cargolint",
   "description": "VSCode extension linting with Cargo instead of rls",
   "author": "gjolivier@gmail.com",
   "license": "MIT",

@@ -48,8 +48,14 @@ const findCargoRoot = async (fileName: string): Promise<string> => {
   }
 };
 
-const execArgs = function(command: string, args: string[], options: SpawnOptions): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+interface ExecOutput {
+  stdout: string,
+  stderr: string,
+  code: number
+}
+
+const execArgs = function(command: string, args: string[], options: SpawnOptions): Promise<ExecOutput> {
+  return new Promise<ExecOutput>((resolve, reject) => {
     const s = spawn(command, args, options);
     let stdout = '';
     let stderr = '';
@@ -63,11 +69,7 @@ const execArgs = function(command: string, args: string[], options: SpawnOptions
       reject({stdout, stderr, error: e});
     });
     s.on('close', code => {
-      if (code === 0) {
-        resolve(stdout);
-      } else {
-        reject({stdout, stderr});
-      }
+        resolve({code, stdout, stderr});
     });
   });
 };
@@ -104,13 +106,8 @@ interface CheckMessage {
   }
 }
 
-const runCargoCheck = async function(cargoRoot: string): Promise<CheckMessage[]> {
-  try {
-    await execArgs('cargo', ['check', '--message-format', 'json'], {cwd: cargoRoot});
-    return [];
-  } catch (e) {
-    const {stdout} = e;
-    const lines = stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+function processCargoCheckOutput(s: string): CheckMessage[]{
+  const lines = s.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     return lines.map((l, i) => {
       let v = null;
       try {
@@ -120,7 +117,11 @@ const runCargoCheck = async function(cargoRoot: string): Promise<CheckMessage[]>
       }
       return v;
     });
-  }
+}
+
+const runCargoCheck = async function(cargoRoot: string): Promise<CheckMessage[]> {
+  const output = await execArgs('cargo', ['check', '--message-format', 'json'], {cwd: cargoRoot});
+  return processCargoCheckOutput(output.stdout);
 };
 
 function getSeverity(message: CheckMessage, span: CheckMessageSpan) {

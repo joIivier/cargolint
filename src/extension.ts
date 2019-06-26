@@ -145,17 +145,23 @@ function getLabel(message: CheckMessage, span: CheckMessageSpan) {
 }
 
 export function activate(_context: vscode.ExtensionContext) {
+  const statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
   let dc = vscode.languages.createDiagnosticCollection("cargolint");
   const diagnosticsPerFile = new Map<string, vscode.Diagnostic[]>();
   vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
     if (document.fileName.endsWith('.rs')) {
       try {
+        statusItem.text = 'cargolint:finding root…';
+        statusItem.show();
         const cargoRoot = await findCargoRoot(document.fileName);
+
+        statusItem.text = 'cargolint:linting…';
         const messages = await runCargoCheck(cargoRoot);
         // Clear previous diagnostics
         for (let [_file, diagnostics] of diagnosticsPerFile) {
           diagnostics.length = 0;
         }
+        statusItem.text = 'cargolint:converting output…';
         for (let message of messages) {
           if (message.message === undefined) {
             continue;
@@ -179,6 +185,8 @@ export function activate(_context: vscode.ExtensionContext) {
         }
       } catch (e) {
         vscode.window.showErrorMessage(`Could not cargolint: ${e}`);
+      } finally {
+        statusItem.hide();
       }
     }
   });
